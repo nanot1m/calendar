@@ -1,4 +1,4 @@
-.App {
+.root {
 	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 	font-size: 0.75rem;
 	text-align: center;
@@ -9,12 +9,12 @@
 }
 
 .week,
-.month-days {
+.month_days {
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
 }
 
-.week-day {
+.week_day {
 	font-weight: bold;
 }
 
@@ -39,17 +39,17 @@
 	margin: 0;
 }
 
-.month-title {
+.month_title {
 	font-size: 2em;
 	margin: 0 0 0.25em;
 	text-transform: uppercase;
 }
 
-.month-day__disabled {
+.month_day__disabled {
 	opacity: 0.2;
 }
 
-.month-day {
+.month_day {
 	line-height: 2em;
 }
 

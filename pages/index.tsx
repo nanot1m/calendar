@@ -1,12 +1,15 @@
+import styles from "./index.module.css"
+
 import React, { useMemo } from "react"
-import "./styles.css"
+import { GetServerSideProps, InferGetServerSidePropsType } from "next"
+import cx from "classnames"
 import {
 	FirstDayOfTheWeek,
 	getDayName,
 	getDayOfTheWeek,
 	getMonthName,
 	getWeekDay,
-} from "./date"
+} from "../src/date"
 
 function Week({
 	firstDayOfTheWeek,
@@ -14,20 +17,20 @@ function Week({
 }: {
 	firstDayOfTheWeek: FirstDayOfTheWeek
 	locale: string
-}): JSX.Element {
+}) {
 	const cells = Array<React.ReactNode>()
 	for (let i = 0; i < 7; i++) {
 		const weekday = getWeekDay(i, firstDayOfTheWeek)
 		cells.push(
 			<span
 				key={i}
-				className={"week-day" + (weekday % 6 === 0 ? " holiday" : "")}
+				className={cx(styles.week_day, weekday % 6 === 0 && styles.holiday)}
 			>
 				{getDayName(weekday, locale)}
 			</span>
 		)
 	}
-	return <div className="week">{cells}</div>
+	return <div className={styles.week}>{cells}</div>
 }
 
 function Month({
@@ -53,7 +56,7 @@ function Month({
 			result.push(
 				<span
 					key={"disabled" + dayOfTheWeek}
-					className="month-day month-day__disabled"
+					className={cx(styles.month_day, styles.month_day__disabled)}
 				>
 					{date.getDate()}
 				</span>
@@ -67,7 +70,7 @@ function Month({
 		const lastDate = lastDayDate.getDate()
 		for (let i = 1; i <= lastDate; i++) {
 			result.push(
-				<span key={"day-" + i} className="month-day">
+				<span key={"day-" + i} className={styles.month_day}>
 					{i}
 				</span>
 			)
@@ -77,7 +80,7 @@ function Month({
 			result.push(
 				<span
 					key={"disabled_after-" + i}
-					className="month-day month-day__disabled"
+					className={cx(styles.month_day, styles.month_day__disabled)}
 				>
 					{i}
 				</span>
@@ -88,27 +91,45 @@ function Month({
 	}, [firstDay, firstDayOfTheWeek])
 
 	return (
-		<section className="month">
-			<h2 className="month-title">{getMonthName(firstDay, locale)}</h2>
+		<section className={styles.month}>
+			<h2 className={styles.month_title}>{getMonthName(firstDay, locale)}</h2>
 			<hr />
 			<Week firstDayOfTheWeek={firstDayOfTheWeek} locale={locale} />
-			<div className="month-days">{cells}</div>
+			<div className={styles.month_days}>{cells}</div>
 		</section>
 	)
 }
 
-export default function App() {
+type IndexQuery = {
+	locale: string
+	year: string
+	firstDayOfTheWeek: FirstDayOfTheWeek
+}
+
+export const getServerSideProps = async function (context) {
+	const query = context.query as IndexQuery
+	const year = query.year ? parseInt(query.year) : 2023
+	const locale = query.locale ?? "de-DE"
+	const firstDayOfTheWeek = query.firstDayOfTheWeek ?? "Monday"
+	return { props: { year, locale, firstDayOfTheWeek } }
+} satisfies GetServerSideProps
+
+export default function Index({
+	firstDayOfTheWeek,
+	locale,
+	year,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
 	return (
-		<div className="App">
-			<h1 className="title">2023</h1>
-			<div className="calendar">
+		<div className={styles.root}>
+			<h1 className={styles.title}>{year}</h1>
+			<div className={styles.calendar}>
 				{Array.from(Array(12), (_, i) => (
 					<Month
 						key={i}
-						year={2023}
+						year={year}
 						month={i}
-						firstDayOfTheWeek="Monday"
-						locale="de-DE"
+						firstDayOfTheWeek={firstDayOfTheWeek}
+						locale={locale ?? "de-DE"}
 					/>
 				))}
 			</div>
